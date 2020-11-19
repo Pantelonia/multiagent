@@ -39,18 +39,18 @@ class ReflexAgent(Agent):
         some Directions.X for some X in the set {North, South, West, East, Stop}
         """
         # Collect legal moves and successor states
-        legalMoves = gameState.getLegalActions()
+        legalAction = gameState.getLegalActions()
 
         # Choose one of the best actions
-        scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
+        scores = [self.evaluationFunction(gameState, action) for action in legalAction]
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices) # Pick randomly among the best
 
         "Add more of your code here if you want to"
-        # print "New done position:", legalMoves[chosenIndex]
+        # print "New done position:", legalAction[chosenIndex]
 
-        return legalMoves[chosenIndex]
+        return legalAction[chosenIndex]
 
     def evaluationFunction(self, currentGameState, action):
         """
@@ -116,7 +116,7 @@ class MultiAgentSearchAgent(Agent):
       You *do not* need to make any changes here, but you can if you want to
       add functionality to all your adversarial search agents.  Please do not
       remove anything, however.
-
+ 
       Note: this is an abstract class: one that should not be instantiated.  It's
       only partially specified, and designed to be extended.  Agent (game.py)
       is another abstract class.
@@ -149,8 +149,42 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.getNumAgents():
             Returns the total number of agents in the game
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        "*** Here we invoce the MinimaxImplementation of Minimax***"
+        return self.MinimaxImplementation(gameState, 1, 0)
+
+    def MinimaxImplementation(self, gameState, currentDepth, agentIndex):
+      "check the finish"
+      if currentDepth > self.depth or gameState.isWin() or gameState.isLose():
+          return self.evaluationFunction(gameState)
+      
+      "here you can see the implementation of algorithm"
+      legalAction = [action for action in gameState.getLegalActions(agentIndex) if action!='Stop']
+      
+      # update next depth
+      nextIndex = agentIndex + 1
+      nextDepth = currentDepth
+      if nextIndex >= gameState.getNumAgents():
+          nextIndex = 0
+          nextDepth += 1
+      
+      # Choose one of the best actions or keep query the minimax result
+      results = [self.MinimaxImplementation( gameState.generateSuccessor(agentIndex, action) ,\
+                                    nextDepth, nextIndex) for action in legalAction]
+      if agentIndex == 0 and currentDepth == 1: # pacman first move
+          bestMove = max(results)
+          bestIndices = [index for index in range(len(results)) if results[index] == bestMove]
+          chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+          #print 'pacman %d' % bestMove
+          return legalAction[chosenIndex]
+      
+      if agentIndex == 0:
+          bestMove = max(results)
+          #print bestMove
+          return bestMove
+      else:
+          bestMove = min(results)
+          #print bestMove
+          return bestMove
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
