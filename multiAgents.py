@@ -152,17 +152,17 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** Here we invoce the MinimaxImplementation of Minimax***"
         return self.MinimaxImplementation(gameState, 1, 0)
 
-    def MinimaxImplementation(self, gameState, currentDepth, agentIndex):
-      "check the finish"
-      if currentDepth > self.depth or gameState.isWin() or gameState.isLose():
+    def MinimaxImplementation(self, gameState, depth, agentIndex):
+      "check the terminal node"
+      if depth > self.depth or gameState.isWin() or gameState.isLose():
           return self.evaluationFunction(gameState)
       
       "here you can see the implementation of algorithm"
       legalAction = [action for action in gameState.getLegalActions(agentIndex) if action!='Stop']
       
-      # update next depth
+      # update with next depth
       nextIndex = agentIndex + 1
-      nextDepth = currentDepth
+      nextDepth = depth
       if nextIndex >= gameState.getNumAgents():
           nextIndex = 0
           nextDepth += 1
@@ -170,7 +170,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
       # Choose one of the best actions or keep query the minimax result
       results = [self.MinimaxImplementation( gameState.generateSuccessor(agentIndex, action) ,\
                                     nextDepth, nextIndex) for action in legalAction]
-      if agentIndex == 0 and currentDepth == 1: # pacman first move
+
+      # check init state
+      if agentIndex == 0 and depth == 1: 
           bestMove = max(results)
           bestIndices = [index for index in range(len(results)) if results[index] == bestMove]
           chosenIndex = random.choice(bestIndices) # Pick randomly among the best
@@ -179,11 +181,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
       
       if agentIndex == 0:
           bestMove = max(results)
-          #print bestMove
           return bestMove
       else:
           bestMove = min(results)
-          #print bestMove
           return bestMove
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
